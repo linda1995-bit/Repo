@@ -7,7 +7,7 @@ trigger:
 resources:
   pipelines:
   - pipeline: 'BuildPipeline' # A friendly name for the pipeline resource
-    source: 'linda1995-bit.NewRepo' # The name of your build pipeline
+    source: 'linda1995-bit.Repo' # The name of your build pipeline
     trigger:
       branches:
       - master # Triggers this release pipeline whenever a build on the master branch completes.

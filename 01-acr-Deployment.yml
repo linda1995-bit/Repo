@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: acrdemo2ss
-          image: 'myregistryjuly.azurecr.io/htmlimg:$(imageTag)' # Corrected image path and placeholder
+          image: 'mystorage.azurecr.io/myimage:$(imageTag)' # Corrected image path and placeholder
           imagePullPolicy: Always
           ports:
             - containerPort: 80
