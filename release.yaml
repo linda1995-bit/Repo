@@ -1,0 +1,71 @@
+# This pipeline defines the release process to deploy your application to AKS.
+
+trigger:
+- none # We will not trigger this pipeline on code changes. It will be triggered by the build pipeline's completion.
+
+# This section links this release pipeline to the build pipeline's artifacts.
+resources:
+  pipelines:
+  - pipeline: 'BuildPipeline' # A friendly name for the pipeline resource
+    source: 'linda1995-bit.NewRepo' # The name of your build pipeline
+    trigger:
+      branches:
+      - master # Triggers this release pipeline whenever a build on the master branch completes.
+
+stages:
+- stage: DeployToDev
+  displayName: 'Deploy to Development Namespace'
+  jobs:
+  - deployment: DeployApp
+    displayName: 'Deploy Application'
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment: 'development' # This links to an environment you can create in Azure DevOps for tracking.
+    
+    variables:
+      # We'll use this variable to reference the image built in the build pipeline.
+      # The Build.SourceBranchName variable ensures we use the correct branch name for the image tag.
+      imageTag: '$(Build.SourceBranchName)-$(Build.BuildId)'
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          # Download the 'drop' artifact from the completed build pipeline.
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Build Artifacts'
+            inputs:
+              artifact: 'drop'
+              path: '$(Pipeline.Workspace)/drop'
+
+<<<<<<< HEAD
+          # This task replaces the image tag placeholder in your Kubernetes deployment manifest
+          # using a built-in PowerShell script, which avoids the need for a third-party extension.
+=======
+          # This step replaces a placeholder in your Kubernetes deployment manifest using Powershell.
+>>>>>>> b2630af535642450b2bcb222558525cef4655ed4
+          - task: PowerShell@2
+            displayName: 'Replace Image Tag with PowerShell'
+            inputs:
+              targetType: 'inline'
+              script: |
+                $filePath = "$(Pipeline.Workspace)/drop/01-acr-Deployment.yaml"
+<<<<<<< HEAD
+                $content = Get-Content -Path $filePath
+                $content -replace '\$\(imageTag\)', "$(imageTag)" | Set-Content -Path $filePath
+=======
+                (Get-Content -Path $filePath) | ForEach-Object {
+                  $_ -replace '\$\(imageTag\)', "$(imageTag)"
+                } | Set-Content -Path $filePath
+>>>>>>> b2630af535642450b2bcb222558525cef4655ed4
+
+          # Use the Kubernetes task to apply both manifest files to your AKS cluster.
+          - task: Kubernetes@1
+            displayName: 'Apply Kubernetes Manifests'
+            inputs:
+              # This is the name of the Kubernetes Service Connection you must create in Azure DevOps.
+              connectionType: 'Kubernetes Service Connection'
+              kubernetesServiceEndpoint: 'DevConnection' # This is the name of your service connection
+              namespace: 'dev' # Specifies the target namespace for the deployment.
+              command: 'apply'
+              arguments: '-f $(Pipeline.Workspace)/drop/01-acr-Deployment.yaml -f $(Pipeline.Workspace)/drop/02-acr-LoadBalancer-Service.yaml' # Updated to use your specific manifest files

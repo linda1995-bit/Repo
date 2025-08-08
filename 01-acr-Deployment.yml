@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: acrdemo2ss-deployment
+  labels:
+    app: acrdemo2ss
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: acrdemo2ss
+  template:
+    metadata:
+      labels:
+        app: acrdemo2ss
+    spec:
+      containers:
+        - name: acrdemo2ss
+          image: 'myregistryjuly.azurecr.io/htmlimg:$(imageTag)' # Corrected image path and placeholder
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+        - name: demosecret
