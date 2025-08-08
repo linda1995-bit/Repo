@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: notneeded 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notneeded
+  template:
+    metadata:
+      labels:
+        app: notneeded 
+    spec:
+      containers:
+        - name: notneeded 
+          image: mystorage.azurecr.io/notneeded
+          ports:
+          - containerPort: 80
